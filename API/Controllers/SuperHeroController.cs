@@ -3,30 +3,57 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace API.Controllers
 {
     [Route("[controller]")]
+    [ApiController]
     public class SuperHeroController : Controller
     {
-        private readonly ILogger<SuperHeroController> _logger;
-
-        public SuperHeroController(ILogger<SuperHeroController> logger)
+        private static List<SuperHero> heroes = new List<SuperHero> 
         {
-            _logger = logger;
+            new SuperHero { 
+            Id = Guid.NewGuid(),
+            Name = "Spider Man",
+            FirstName = "Peter",
+            Lastname = "Parker",
+            Place = "New York City"
+            },
+            
+            new SuperHero { 
+            Id = Guid.NewGuid(),
+            Name = "IronMan",
+            FirstName = "Tony",
+            Lastname = "Stark",
+            Place = "Long Island"
+            }           
+        };
+        [HttpGet]
+        public async Task<ActionResult<List<SuperHero>>> Get()
+        {
+
+            return Ok(heroes);
         }
 
-        public IActionResult Index()
+        [HttpGet("{name}")]
+        public async Task<ActionResult<SuperHero>> Get(string name)
         {
-            return View();
+            var hero = heroes.Find(f => f.Name == name);
+            if(hero == null)
+            {
+                return BadRequest("hero not found");
+            }
+            return Ok(heroes);
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpPost]
+        public async Task<ActionResult<List<SuperHero>>> AddHero(SuperHero hero)
         {
-            return View("Error!");
-        }
+            heroes.Add(hero);
+            return Ok(heroes);
+        }        
     }
 }
